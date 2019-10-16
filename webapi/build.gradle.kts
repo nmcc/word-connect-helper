@@ -34,6 +34,7 @@ dependencies {
         exclude(group = "org.jetbrains.kotlin")
     }
     testImplementation(group = "org.junit.platform", name = "junit-platform-engine", version = "1.3.0-RC1")
+    testImplementation("org.mockito:mockito-core:2.+")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
