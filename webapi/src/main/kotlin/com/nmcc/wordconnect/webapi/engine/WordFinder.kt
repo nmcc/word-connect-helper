@@ -7,8 +7,8 @@ class WordFinder(wordReader: IWordReader) {
 
     init {
         val wordsByLetterIndex = wordReader.readWords()
-                .filter { minLength(it, 3) }
-                .map { normalize(it) }
+                .filter { it.hasMinLength(3) }
+                .map { it.normalize() }
 
         // Index words by every letter
         wordsByLetterIndex.forEach { word ->
@@ -23,20 +23,22 @@ class WordFinder(wordReader: IWordReader) {
     }
 
     fun findWords(searchLetters: String, length: Int): Iterable<String> {
-        val normalizedSearchLetters = normalize(searchLetters)
-        val regex = Regex("^[$normalizedSearchLetters]{$length}")
+        val normalizedSearchLetters = searchLetters.normalize()
 
-        var result = emptySet<String>()
+        // Pre-match every word with the required length
+        var preMatches = emptySet<String>()
         normalizedSearchLetters.forEach { letter ->
-            val words = wordsByFirstLetter[letter]
-                    ?.filter { word -> regex.matches(word) }
-                    ?.filter { word -> word.containsAllLetters(normalizedSearchLetters) }
+            val wordsForLetter = wordsByFirstLetter[letter]
+                    ?.filter { word -> word.length == length }
                     ?: emptySet<String>()
 
-            result = result.union(words)
+            preMatches = preMatches.union(wordsForLetter)
         }
 
-        return result
+        val regex = Regex("^[$normalizedSearchLetters]{$length}")
+        return preMatches
+                .filter { word -> regex.matches(word) }
+                .filter { word -> word.containsAllLetters(normalizedSearchLetters) }
     }
 
     private fun String.containsAllLetters(searchLetters: String): Boolean {
@@ -54,7 +56,7 @@ class WordFinder(wordReader: IWordReader) {
         return true
     }
 
-    private fun normalize(word: String): String = word.trim().toUpperCase()
+    private fun String.normalize() = this.trim().toUpperCase()
 
-    private fun minLength(word: String, minLength: Int): Boolean = word.length >= minLength
+    private fun String.hasMinLength(minLength: Int) = this.length >= minLength
 }
