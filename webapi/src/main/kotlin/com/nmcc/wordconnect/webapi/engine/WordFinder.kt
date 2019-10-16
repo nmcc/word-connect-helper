@@ -1,7 +1,9 @@
 package com.nmcc.wordconnect.webapi.engine
 
 import com.nmcc.wordconnect.webapi.engine.reader.IWordReader
+import org.springframework.stereotype.Service
 
+@Service
 class WordFinder(wordReader: IWordReader) {
     private val wordsByFirstLetter: MutableMap<Char, MutableSet<String>> = mutableMapOf()
 

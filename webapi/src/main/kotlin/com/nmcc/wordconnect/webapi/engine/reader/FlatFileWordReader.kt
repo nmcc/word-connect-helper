@@ -1,11 +1,10 @@
 package com.nmcc.wordconnect.webapi.engine.reader
 
 import java.io.Closeable
-import java.io.File
+import java.io.InputStream
 
-class FlatFileWordReader(filePath: String) : IWordReader, Closeable {
-
-    private val reader = File(filePath).bufferedReader()
+class FlatFileWordReader(inputStream: InputStream) : IWordReader, Closeable {
+    private val reader = inputStream.bufferedReader()
 
     override fun readWords(): Sequence<String> = reader.lineSequence()
 

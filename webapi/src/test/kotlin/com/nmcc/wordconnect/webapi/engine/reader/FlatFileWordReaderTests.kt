@@ -9,8 +9,16 @@ class FlatFileWordReaderTests : Spek({
     describe("Flat File Reader") {
 
         describe("reading a file") {
-            //val fileUrl = FlatFileWordReaderTests::class.java.getResource("SimpleWordFile.txt")
-            val reader = FlatFileWordReader("src/test/resources/SimpleWordFile.txt")
+            val values = "the\n" +
+                    "quick\n" +
+                    "brown\n" +
+                    "fox\n" +
+                    "jumps\n" +
+                    "over\n" +
+                    "the\n" +
+                    "lazy\n" +
+                    "dog"
+            val reader = FlatFileWordReader(values.byteInputStream())
             val content = reader.readWords().toList()
 
             it("reads all words") {
