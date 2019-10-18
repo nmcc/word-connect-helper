@@ -31,16 +31,16 @@ class WordFinder(wordReader: IWordReader) {
         var preMatches = emptySet<String>()
         normalizedSearchLetters.forEach { letter ->
             val wordsForLetter = wordsByFirstLetter[letter]
-                    ?.filter { word -> word.length == length }
+                    ?.filter { it.hasLength(length) }
                     ?: emptySet<String>()
 
-            preMatches = preMatches.union(wordsForLetter)
+            preMatches = preMatches.let { it.union(wordsForLetter) }
         }
 
         val regex = Regex("^[$normalizedSearchLetters]{$length}")
         return preMatches
-                .filter { word -> regex.matches(word) }
-                .filter { word -> word.containsAllLetters(normalizedSearchLetters) }
+                .filter { regex.matches(it) }
+                .filter { it.containsAllLetters(normalizedSearchLetters) }
     }
 
     private fun String.containsAllLetters(searchLetters: String): Boolean {
@@ -61,4 +61,6 @@ class WordFinder(wordReader: IWordReader) {
     private fun String.normalize() = this.trim().toUpperCase()
 
     private fun String.hasMinLength(minLength: Int) = this.length >= minLength
+
+    private fun String.hasLength(minLength: Int) = this.length == minLength
 }
