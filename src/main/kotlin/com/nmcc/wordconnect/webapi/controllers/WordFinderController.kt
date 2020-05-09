@@ -13,5 +13,17 @@ class WordFinderController(val wordFinder: WordFinder) {
     @GetMapping("/wordconnect/find")
     @ResponseBody
     fun findWords(@RequestParam letters: String, @RequestParam length: Int) =
-            WordFinderResultModel(wordFinder.findWords(letters, length), letters, length)
+            WordFinderResultModel(wordFinder.findWords(letters, length), letters, length, length)
+
+    @GetMapping("/wordconnect/find/multiple")
+    @ResponseBody
+    fun findWordsMultiLength(@RequestParam letters: String, @RequestParam lengthFrom: Int, @RequestParam lengthTo: Int): WordFinderResultModel {
+        val words = mutableListOf<String>()
+
+        (lengthFrom..lengthTo).forEach { length ->
+            words.addAll(wordFinder.findWords(letters, length))
+        }
+
+        return WordFinderResultModel(words, letters, lengthFrom, lengthTo)
+    }
 }
