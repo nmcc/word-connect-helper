@@ -7,9 +7,12 @@ import org.springframework.stereotype.Service
 class WordFinder(wordReader: IWordReader) {
     private val wordsByFirstLetter: MutableMap<Char, MutableSet<String>> = mutableMapOf()
 
+    private val filterRegex = Regex("[A-Za-z][a-z]+")
+
     init {
         val wordsByLetterIndex = wordReader.readWords()
                 .filter { it.hasMinLength(3) }
+                .filter { filterRegex.matches(it) }
                 .map { it.normalize() }
 
         // Index words by every letter
