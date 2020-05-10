@@ -1,5 +1,7 @@
 package com.nmcc.wordconnect.webapi
 
+import com.nmcc.wordconnect.webapi.engine.LanguageFileMapping
+import com.nmcc.wordconnect.webapi.engine.WordFinderForLanguage
 import com.nmcc.wordconnect.webapi.engine.reader.FlatFileWordReader
 import com.nmcc.wordconnect.webapi.engine.reader.IWordReader
 import org.springframework.boot.autoconfigure.SpringBootApplication
@@ -10,15 +12,17 @@ import java.io.FileNotFoundException
 @SpringBootApplication
 class WebapiApplication {
 
-	@Bean
-	fun wordReader(): IWordReader {
-		val englishDictionary = this.javaClass.classLoader.getResourceAsStream("words-en.txt")
-				?: throw FileNotFoundException("Unable to find dictionary")
+    @Bean
+    fun wordFinderForLanguage(): WordFinderForLanguage {
+        val dictionaries = sequence {
+            yield(LanguageFileMapping("pt-PT", "words.pt-pt.txt"))
+            yield(LanguageFileMapping("en-US", "words.en.txt"))
+        }
 
-		return FlatFileWordReader(englishDictionary)
-	}
+        return WordFinderForLanguage(dictionaries)
+    }
 }
 
 fun main(args: Array<String>) {
-	runApplication<WebapiApplication>(*args)
+    runApplication<WebapiApplication>(*args)
 }

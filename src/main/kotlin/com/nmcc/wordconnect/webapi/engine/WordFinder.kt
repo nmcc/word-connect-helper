@@ -3,32 +3,33 @@ package com.nmcc.wordconnect.webapi.engine
 import com.nmcc.wordconnect.webapi.engine.reader.IWordReader
 import org.springframework.stereotype.Service
 
-@Service
 class WordFinder(wordReader: IWordReader) {
     private val wordsByFirstLetter: MutableMap<Char, MutableSet<String>> = mutableMapOf()
 
     private val filterRegex = Regex("[A-Za-z][a-z]+")
 
     init {
-        val wordsByLetterIndex = wordReader.readWords()
-                .filter { it.hasMinLength(3) }
-                .filter { filterRegex.matches(it) }
-                .map { it.normalize() }
+        wordReader.use {
+            val wordsByLetterIndex = wordReader.readWords()
+                    .filter { it.hasMinLength(3) }
+                    .filter { filterRegex.matches(it) }
+                    .map { normalize(it) }
 
-        // Index words by every letter
-        wordsByLetterIndex.forEach { word ->
-            word.forEach { letter ->
-                if (!this.wordsByFirstLetter.containsKey(letter)) {
-                    this.wordsByFirstLetter[letter] = mutableSetOf()
+            // Index words by every letter
+            wordsByLetterIndex.forEach { word ->
+                word.forEach { letter ->
+                    if (!this.wordsByFirstLetter.containsKey(letter)) {
+                        this.wordsByFirstLetter[letter] = mutableSetOf()
+                    }
+
+                    this.wordsByFirstLetter[letter]!!.add(word)
                 }
-
-                this.wordsByFirstLetter[letter]!!.add(word)
             }
         }
     }
 
     fun findWords(searchLetters: String, length: Int): Iterable<String> {
-        val normalizedSearchLetters = searchLetters.normalize()
+        val normalizedSearchLetters = normalize(searchLetters)
 
         // Pre-match every word with the required length
         var preMatches = emptySet<String>()
@@ -37,7 +38,7 @@ class WordFinder(wordReader: IWordReader) {
                     ?.filter { it.hasLength(length) }
                     ?: emptySet<String>()
 
-            preMatches = preMatches.let { it.union(wordsForLetter) }
+            preMatches = preMatches.union(wordsForLetter)
         }
 
         val regex = Regex("^[$normalizedSearchLetters]{$length}")
@@ -61,7 +62,7 @@ class WordFinder(wordReader: IWordReader) {
         return true
     }
 
-    private fun String.normalize() = this.trim().toUpperCase()
+    private fun normalize(s: String) = s.trim().toUpperCase()
 
     private fun String.hasMinLength(minLength: Int) = this.length >= minLength
 

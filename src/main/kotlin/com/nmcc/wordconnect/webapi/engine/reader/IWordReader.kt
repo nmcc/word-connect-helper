@@ -1,6 +1,8 @@
 package com.nmcc.wordconnect.webapi.engine.reader
 
-interface IWordReader {
+import java.io.Closeable
+
+interface IWordReader : Closeable {
     fun readWords(): Sequence<String>
 
 }
