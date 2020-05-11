@@ -4,13 +4,11 @@ import com.nmcc.wordconnect.webapi.engine.reader.IWordReader
 
 class WordFinder(wordReader: IWordReader) {
     private val charArrayLength = 'Z' - 'A' + 1
-    private val words: Array<MutableList<String>>
+    private val words = Array(charArrayLength) { mutableListOf<String>()}
 
     private val filterRegex = Regex("[A-Za-z][a-z]+")
 
     init {
-        words = Array(charArrayLength, { i ->  mutableListOf<String>()})
-
         wordReader.use {
             wordReader.readWords()
                     .filter { it.hasMinLength(3) }
