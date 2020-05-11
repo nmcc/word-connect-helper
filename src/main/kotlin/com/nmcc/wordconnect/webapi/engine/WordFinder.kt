@@ -1,32 +1,30 @@
 package com.nmcc.wordconnect.webapi.engine
 
 import com.nmcc.wordconnect.webapi.engine.reader.IWordReader
-import org.springframework.stereotype.Service
 
 class WordFinder(wordReader: IWordReader) {
-    private val wordsByFirstLetter: MutableMap<Char, MutableSet<String>> = mutableMapOf()
+    private val charArrayLength = 'Z' - 'A' + 1
+    private val words: Array<MutableList<String>>
 
     private val filterRegex = Regex("[A-Za-z][a-z]+")
 
     init {
+        words = Array(charArrayLength, { i ->  mutableListOf<String>()})
+
         wordReader.use {
-            val wordsByLetterIndex = wordReader.readWords()
+            wordReader.readWords()
                     .filter { it.hasMinLength(3) }
                     .filter { filterRegex.matches(it) }
                     .map { normalize(it) }
-
-            // Index words by every letter
-            wordsByLetterIndex.forEach { word ->
-                word.forEach { letter ->
-                    if (!this.wordsByFirstLetter.containsKey(letter)) {
-                        this.wordsByFirstLetter[letter] = mutableSetOf()
+                    .forEach { word ->
+                        word.forEach { letter ->
+                            words[indexOfLetter(letter)].add(word)
+                        }
                     }
-
-                    this.wordsByFirstLetter[letter]!!.add(word)
-                }
-            }
         }
     }
+
+    private fun indexOfLetter(c: Char) = c - 'A'
 
     fun findWords(searchLetters: String, length: Int): Iterable<String> {
         val normalizedSearchLetters = normalize(searchLetters)
@@ -34,9 +32,8 @@ class WordFinder(wordReader: IWordReader) {
         // Pre-match every word with the required length
         var preMatches = emptySet<String>()
         normalizedSearchLetters.forEach { letter ->
-            val wordsForLetter = wordsByFirstLetter[letter]
-                    ?.filter { it.hasLength(length) }
-                    ?: emptySet<String>()
+            val wordsForLetter = words[indexOfLetter(letter)]
+                    .filter { it.hasLength(length) }
 
             preMatches = preMatches.union(wordsForLetter)
         }
