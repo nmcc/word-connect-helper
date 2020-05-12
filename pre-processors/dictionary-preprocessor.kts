@@ -22,7 +22,7 @@ fun replaceChars(word: String): String {
 
     newWord.forEach {
         if (lettersToReplace.contains(it)) {
-            newWord.replace(it, charMap[it]!!)
+            newWord = newWord.replace(it, charMap[it]!!)
         }
     }
 
@@ -38,8 +38,11 @@ fun processDictionary(pathToDictionary: String, pathToBlacklist: String, pathToO
     val out = outFilename.outputStream().bufferedWriter()
     out.use {
         File(pathToDictionary).forEachLine { word ->
-            if (wordMatchRegex.matches(word) && !blackList.contains(word)) {
-                val newWord = replaceChars(word)
+            if (blackList.contains(word)) return@forEachLine
+
+            val newWord = replaceChars(word)
+
+            if (wordMatchRegex.matches(newWord)) {
                 out.write(newWord)
                 out.write("\r\n")
             }
