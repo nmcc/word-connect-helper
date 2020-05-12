@@ -4,7 +4,7 @@ import com.nmcc.wordconnect.webapi.engine.reader.IWordReader
 
 class WordFinder(wordReader: IWordReader) {
     private val charArrayLength = 'Z' - 'A' + 1
-    private val words = Array(charArrayLength) { mutableListOf<String>()}
+    private val words = Array(charArrayLength) { mutableListOf<String>() }
 
     private val filterRegex = Regex("[A-Za-z][a-z]+")
 
@@ -36,7 +36,7 @@ class WordFinder(wordReader: IWordReader) {
             preMatches = preMatches.union(wordsForLetter)
         }
 
-        val regex = Regex("^[$normalizedSearchLetters]{$length}")
+        val regex = Regex("^[$normalizedSearchLetters]{$length}$")
         return preMatches
                 .filter { regex.matches(it) }
                 .filter { it.containsAllLetters(normalizedSearchLetters) }
